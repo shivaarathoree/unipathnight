@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "AI Career Coach Meet Assistant",
+  "version": "1.0",
+  "description": "AI assistant that listens to Google Meet interviews and provides answers to students",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "microphone",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://meet.google.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.html", "content.css"],
+      "matches": ["https://meet.google.com/*"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI Career Coach Meet Assistant"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

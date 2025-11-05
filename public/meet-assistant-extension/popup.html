@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 350px;
+      padding: 0;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .header {
+      background: #4f46e5;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .container {
+      padding: 16px;
+    }
+    
+    .status {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #f3f4f6;
+      border-radius: 8px;
+    }
+    
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 12px;
+    }
+    
+    .status-indicator.active {
+      background: #10b981;
+    }
+    
+    .status-indicator.inactive {
+      background: #ef4444;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #4338ca;
+    }
+    
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    
+    .instructions {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 12px;
+      margin-top: 16px;
+      border-radius: 0 6px 6px 0;
+    }
+    
+    .instructions h3 {
+      margin-top: 0;
+      color: #1e40af;
+    }
+    
+    .instructions ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+    
+    .instructions li {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AI Career Coach</h1>
+  </div>
+  
+  <div class="container">
+    <div class="status">
+      <div class="status-indicator inactive" id="status-indicator"></div>
+      <div>
+        <div id="status-text">Assistant Inactive</div>
+        <div id="status-detail" style="font-size: 12px; opacity: 0.8;">Not in a Google Meet session</div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="api-key">Gemini API Key</label>
+      <input type="password" id="api-key" placeholder="Enter your Gemini API key">
+    </div>
+    
+    <button id="save-key">Save API Key</button>
+    <button id="toggle-assistant" disabled>Start Assistant</button>
+    
+    <div class="instructions">
+      <h3>How to use:</h3>
+      <ul>
+        <li>Join a Google Meet interview session</li>
+        <li>The assistant will automatically activate</li>
+        <li>Speak naturally during your interview</li>
+        <li>Answers will appear in the corner of your screen</li>
+        <li>Only you can see the answers, not the interviewer</li>
+      </ul>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
