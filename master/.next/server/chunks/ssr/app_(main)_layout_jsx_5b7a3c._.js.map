@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file://C%3A/Users/Shiva/Downloads/UNIPATH-LATEST/master/app/%28main%29/layout.jsx"],"sourcesContent":["import React from \"react\";\r\n\r\nconst MainLayout = async ({ children }) => {\r\n  return <div className=\"container mx-auto mt-24 mb-20\">{children}</div>;\r\n};\r\n\r\nexport default MainLayout;\r\n"],"names":[],"mappings":";;;;AAAA;;;AAEA,MAAM,aAAa,OAAO,EAAE,QAAQ,EAAE;IACpC,qBAAO,8OAAC;QAAI,WAAU;kBAAiC;;;;;;AACzD;uCAEe"}},
+    {"offset": {"line": 25, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

@@ -1,12 +1,10 @@
-import { Turret_Road } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { dark } from "@clerk/themes";
-
-const turretRoad = Turret_Road({ subsets: ["latin"], weight: "700" });
+import Script from "next/script";
 
 export const metadata = {
   title: "AI Career Coach",
@@ -24,7 +22,7 @@ export default function RootLayout({ children }) {
         <head>
           <link rel="icon" href="/logo.png" sizes="any" />
         </head>
-        <body className={turretRoad.className}>
+        <body>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
@@ -37,7 +35,7 @@ export default function RootLayout({ children }) {
 
             <footer className="bg-muted/50 py-12">
               <div className="container mx-auto px-4 text-center text-gray-200">
-                <p>Made with 💗 by RoadsideCoder</p>
+                <p>Made with 💗 by Shiva</p>
               </div>
             </footer>
           </ThemeProvider>

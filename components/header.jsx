@@ -17,33 +17,39 @@ export default async function Header() {
           <Image
             src="/logo.png"
             alt="Unipath Logo"
-            width={200}
-            height={60}
-            className="h-12 py-1 w-auto object-contain"
+            width={170}
+            height={50}
+            priority
+           className="h-15 py-1 w-auto object-contain"
           />
         </Link>
 
         {/* Center Section - Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8 font-medium">
-          <Link
-            href="/#about-team"
-            className="text-sm text-foreground/80 hover:text-primary transition-colors cursor-pointer"
-          >
-            About
-          </Link>
-          <Link
-            href="/#growth-tools"
-            className="text-sm text-foreground/80 hover:text-primary transition-colors cursor-pointer"
-          >
-            Growth Tools
-          </Link>
-          <Link
-            href="/#cta-section"
-            className="text-sm text-foreground/80 hover:text-primary transition-colors cursor-pointer"
-          >
-            Contact
-          </Link>
-        </div>
+       <div
+  className="hidden md:flex items-center space-x-8 font-medium"
+  style={{ fontFamily: 'Coldiac, sans-serif' }}
+>
+  
+  <Link
+    href="/#growth-tools"
+    className="text-sm text-foreground/80 hover:text-primary transition-colors cursor-pointer"
+  >
+    GROWTH TOOLS
+  </Link>
+  <Link
+    href="/#about-team"
+    className="text-sm text-foreground/80 hover:text-primary transition-colors cursor-pointer"
+  >
+    ABOUT
+  </Link>
+  <Link
+    href="/#cta-section"
+    className="text-sm text-foreground/80 hover:text-primary transition-colors cursor-pointer"
+  >
+    CONTACT US
+  </Link>
+</div>
+
 
         {/* Right Section - Action Buttons */}
         <div className="flex items-center space-x-2 md:space-x-4">

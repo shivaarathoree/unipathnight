@@ -7,7 +7,9 @@ const Button = () => {
       <button className="button">
         <div className="blob1" />
         <div className="blob2" />
-        <div className="inner">GET INSIGHTS</div>
+        <div className="inner" style={{ fontFamily: 'Coldiac, sans-serif' }}>
+          BUILD PATH
+        </div>
       </button>
     </StyledWrapper>
   );
@@ -16,7 +18,7 @@ const Button = () => {
 const StyledWrapper = styled.div`
   .button {
     cursor: pointer;
-    font-size: 1.4rem;
+    font-size: 1.8rem;
     border-radius: 16px;
     border: none;
     padding: 2px;
@@ -62,8 +64,8 @@ const StyledWrapper = styled.div`
     right: 0;
     background: radial-gradient(
       circle 60px at 100% 100%,
-      #ff6ef7,
-      #ff00bf80,
+rgb(163, 30, 30),
+rgba(255, 0, 13, 0.5),
       transparent
     );
     box-shadow: 10px 10px 30px #ff00bf2d;

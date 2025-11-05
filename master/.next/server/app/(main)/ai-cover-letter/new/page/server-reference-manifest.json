@@ -1,0 +1,82 @@
+{
+  "node": {
+    "00c1cdca00058d3c79bdb39e56a2acdf9579d99b18": {
+      "workers": {
+        "app/(main)/ai-cover-letter/new/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/ai-cover-letter/new/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/cover-letter.js [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(main)/ai-cover-letter/new/page": "action-browser"
+      }
+    },
+    "7fc68a6a9a5af732c89679efdbfc7867e2bca50904": {
+      "workers": {
+        "app/(main)/ai-cover-letter/new/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/ai-cover-letter/new/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/cover-letter.js [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(main)/ai-cover-letter/new/page": "action-browser"
+      }
+    },
+    "4038bb6e9a3b89b0991d247f80fca7fc91e9412646": {
+      "workers": {
+        "app/(main)/ai-cover-letter/new/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/ai-cover-letter/new/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/cover-letter.js [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(main)/ai-cover-letter/new/page": "action-browser"
+      }
+    },
+    "7fe1eaf53a02fd4e431f40acb556bb244590bea70a": {
+      "workers": {
+        "app/(main)/ai-cover-letter/new/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/ai-cover-letter/new/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/cover-letter.js [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(main)/ai-cover-letter/new/page": "action-browser"
+      }
+    },
+    "40b3903b75be302a519e8b98d7e85d898be09b900e": {
+      "workers": {
+        "app/(main)/ai-cover-letter/new/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/ai-cover-letter/new/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/cover-letter.js [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(main)/ai-cover-letter/new/page": "action-browser"
+      }
+    },
+    "7f242e7ea905a8dc9d2da24f9e149b6ff779d9882b": {
+      "workers": {
+        "app/(main)/ai-cover-letter/new/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/ai-cover-letter/new/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/cover-letter.js [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(main)/ai-cover-letter/new/page": "action-browser"
+      }
+    },
+    "4058e5f19cf362df00b9c587bac7d772841975d0be": {
+      "workers": {
+        "app/(main)/ai-cover-letter/new/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/ai-cover-letter/new/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/cover-letter.js [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(main)/ai-cover-letter/new/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

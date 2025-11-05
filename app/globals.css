@@ -1,11 +1,32 @@
+@font-face {
+  font-family: 'PP Mori';
+  src: url('/fonts/ppmori-regular.woff2') format('woff2'),
+       url('/fonts/ppmori.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: 'Turret Road', cursive, Arial, Helvetica, sans-serif;
+  font-family: 'PP Mori', sans-serif;
+  font-weight: 300;
   @apply bg-background text-foreground;
+  overflow-x: hidden;
 }
 
 html {
