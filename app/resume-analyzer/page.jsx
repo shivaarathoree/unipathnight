@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
-import html2pdf from "html2pdf.js";
+
 import {
   Upload,
   FileText,
@@ -21,7 +21,7 @@ export default function ResumeAnalyzer() {
   const [analysisData, setAnalysisData] = useState(null);
   const reportRef = useRef(null);
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!reportRef.current || !analysisData) return;
 
     const opt = {
@@ -32,6 +32,7 @@ export default function ResumeAnalyzer() {
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
 
+    const html2pdf = (await import("html2pdf.js")).default;
     html2pdf().set(opt).from(reportRef.current).save();
   };
 
@@ -144,7 +145,6 @@ export default function ResumeAnalyzer() {
             strokeDashoffset={offset}
             strokeLinecap="round"
             className="transition-all duration-1000 ease-out"
-            style={{ filter: "drop-shadow(0 0 8px #00ff88)" }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -163,9 +163,9 @@ export default function ResumeAnalyzer() {
     };
 
     return (
-      <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-6 rounded-xl border border-[#2a2a2a] hover:border-[#00ff88] transition-all duration-300 group">
+      <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-6 rounded-xl border border-[#2a2a2a]">
         <div className="flex items-center justify-between mb-4">
-          <Icon className="w-6 h-6 text-[#00ff88] group-hover:scale-110 transition-transform" />
+          <Icon className="w-6 h-6 text-[#00ff88]" />
           <span className="text-2xl font-bold text-white">{score}%</span>
         </div>
         <h3 className="text-sm text-gray-400 mb-2">{title}</h3>
@@ -175,7 +175,6 @@ export default function ResumeAnalyzer() {
             style={{
               width: `${score}%`,
               backgroundColor: getColor(score),
-              boxShadow: `0 0 10px ${getColor(score)}`,
             }}
           />
         </div>
@@ -188,59 +187,89 @@ export default function ResumeAnalyzer() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1
-            className="text-6xl font-bold mb-4 bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent animate-pulse"
-            style={{ textShadow: "0 0 40px rgba(255, 255, 255, 0.8)" }}
-          >
+          <h1 className="text-5xl font-bold mb-6 text-white">
             AI Resume Analyzer
           </h1>
-          <p className="text-xl text-gray-400">
-            Get instant AI-powered feedback and optimization tips
+          <p className="text-xl text-gray-400 max-w-6xl mx-auto mb-8">
+            Get actionable insights to optimize your resume for applicant tracking systems and hiring managers in seconds.
           </p>
         </div>
 
-        {/* Upload Section */}
+        {/* Two-column layout for upload section */}
         {!file && !analyzing && !analyzed && (
-          <div
-            className={`relative border-2 border-dashed rounded-2xl p-16 text-center transition-all duration-300 ${
-              dragActive
-                ? "border-[#00ff88] bg-[#00ff88]/5 scale-105"
-                : "border-[#2a2a2a] hover:border-[#00ff88]/50"
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-            style={{
-              background: dragActive
-                ? "radial-gradient(circle at center, rgba(0,255,136,0.1) 0%, transparent 70%)"
-                : "radial-gradient(circle at center, rgba(26,26,26,0.5) 0%, transparent 70%)",
-            }}
-          >
-            <Upload
-              className="w-20 h-20 mx-auto mb-6 text-white"
-              style={{ filter: "drop-shadow(0 0 20px rgba(255, 255, 255, 0.8))" }}
-            />
-            <h2 className="text-2xl font-bold mb-2">Drop your resume here</h2>
-            <p className="text-gray-400 mb-6">
-              or click to browse (PDF, DOC, DOCX)
-            </p>
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={(e) =>
-                e.target.files[0] && handleFile(e.target.files[0])
-              }
-              className="hidden"
-              id="file-upload"
-            />
-            <label
-              htmlFor="file-upload"
-              className="inline-block px-8 py-4 bg-[#00ff88] text-black font-bold rounded-lg cursor-pointer hover:bg-[#00ff88]/90 transition-all hover:scale-105"
-              style={{ boxShadow: "0 0 30px rgba(0,255,136,0.5)" }}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left column - Description */}
+            <div className="flex flex-col justify-center">
+              <h2 className="text-3xl font-bold mb-6 text-white">Professional Resume Analysis</h2>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start">
+                  <CheckCircle className="w-6 h-6 text-[#00ff88] mr-3 mt-1 flex-shrink-0" />
+                  <span className="text-gray-400">ATS compatibility scoring</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-6 h-6 text-[#00ff88] mr-3 mt-1 flex-shrink-0" />
+                  <span className="text-gray-400">Content quality assessment</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-6 h-6 text-[#00ff88] mr-3 mt-1 flex-shrink-0" />
+                  <span className="text-gray-400">Keyword optimization suggestions</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-6 h-6 text-[#00ff88] mr-3 mt-1 flex-shrink-0" />
+                  <span className="text-gray-400">Format and design recommendations</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-6 h-6 text-[#00ff88] mr-3 mt-1 flex-shrink-0" />
+                  <span className="text-gray-400">Personalized improvement tips</span>
+                </li>
+              </ul>
+              <div className="bg-[#1a1a1a] p-6 rounded-xl border border-[#2a2a2a]">
+                <h3 className="text-xl font-bold mb-3 text-white">How It Works</h3>
+                <ol className="list-decimal list-inside space-y-2 text-gray-400">
+                  <li>Upload your resume in PDF, DOC, or DOCX format</li>
+                  <li>Our AI analyzes your resume in seconds</li>
+                  <li>Receive a detailed report with scores and suggestions</li>
+                  <li>Implement improvements and re-upload for better results</li>
+                </ol>
+              </div>
+            </div>
+
+            {/* Right column - Upload area */}
+            <div
+              className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 flex flex-col items-center justify-center cursor-pointer ${
+                dragActive
+                  ? "border-[#00ff88] bg-white/10 scale-105"
+                  : "border-[#2a2a2a] hover:border-[#00ff88]/50 bg-white/5"
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              onClick={() => document.getElementById('file-upload').click()}
             >
-              Select File
-            </label>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) =>
+                  e.target.files[0] && handleFile(e.target.files[0])
+                }
+                className="hidden"
+                id="file-upload"
+              />
+              <Upload
+                className="w-16 h-16 mx-auto mb-6 text-white"
+              />
+              <h2 className="text-2xl font-bold mb-2 text-white">Drop your resume here</h2>
+              <p className="text-gray-400 mb-6">
+                or click anywhere to browse (PDF, DOC, DOCX)
+              </p>
+              <div className="inline-block px-8 py-4 bg-white text-black font-bold rounded-lg">
+                Select File
+              </div>
+              <p className="text-gray-500 text-sm mt-4">
+                Supported formats: PDF, DOC, DOCX
+              </p>
+            </div>
           </div>
         )}
 
@@ -264,7 +293,6 @@ export default function ResumeAnalyzer() {
                   className="h-full bg-gradient-to-r from-[#00ff88] to-[#00ffcc] rounded-full transition-all duration-300"
                   style={{
                     width: `${progress}%`,
-                    boxShadow: "0 0 20px rgba(0,255,136,0.6)",
                   }}
                 />
               </div>
@@ -360,13 +388,12 @@ export default function ResumeAnalyzer() {
                 ]).map((rec, i) => (
                   <div
                     key={i}
-                    className="flex items-start space-x-4 p-4 bg-[#0f0f0f] rounded-lg border border-[#2a2a2a] hover:border-[#00ff88]/50 transition-all group"
+                    className="flex items-start space-x-4 p-4 bg-[#0f0f0f] rounded-lg border border-[#2a2a2a]"
                   >
                     <div
                       className="w-2 h-2 rounded-full mt-2 bg-[#00ff88]"
-                      style={{ boxShadow: "0 0 10px #00ff88" }}
                     />
-                    <p className="text-gray-300 group-hover:text-white transition-colors">
+                    <p className="text-gray-300">
                       {rec}
                     </p>
                   </div>
@@ -381,8 +408,7 @@ export default function ResumeAnalyzer() {
             <div className="flex flex-wrap gap-4 justify-center">
               <button
                 onClick={handleDownloadPDF}
-                className="flex items-center space-x-2 px-8 py-4 bg-[#00ff88] text-black font-bold rounded-lg hover:bg-[#00ff88]/90 transition-all hover:scale-105"
-                style={{ boxShadow: "0 0 30px rgba(0,255,136,0.5)" }}
+                className="flex items-center space-x-2 px-8 py-4 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-all"
               >
                 <Download className="w-5 h-5" />
                 <span>Download Report</span>
@@ -393,12 +419,12 @@ export default function ResumeAnalyzer() {
                   setAnalyzed(false);
                   setAnalysisData(null);
                 }}
-                className="flex items-center space-x-2 px-8 py-4 bg-[#1a1a1a] text-white font-bold rounded-lg border-2 border-[#00ff88] hover:bg-[#00ff88]/10 transition-all hover:scale-105"
+                className="flex items-center space-x-2 px-8 py-4 bg-[#1a1a1a] text-white font-bold rounded-lg border border-[#2a2a2a] hover:border-[#00ff88] transition-all"
               >
                 <Upload className="w-5 h-5" />
                 <span>Analyze Another</span>
               </button>
-              <button className="flex items-center space-x-2 px-8 py-4 bg-[#1a1a1a] text-white font-bold rounded-lg border border-[#2a2a2a] hover:border-[#00ff88] transition-all hover:scale-105">
+              <button className="flex items-center space-x-2 px-8 py-4 bg-[#1a1a1a] text-white font-bold rounded-lg border border-[#2a2a2a] hover:border-[#00ff88] transition-all">
                 <Share2 className="w-5 h-5" />
                 <span>Share Analysis</span>
               </button>

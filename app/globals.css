@@ -7,6 +7,23 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Coldiac';
+  src: url('/fonts/Coldiac.otf') format('opentype'),
+       url('/fonts/Coldiac.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sk-Modernist-Regular';
+  src: url('/Sk-Modernist-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -102,9 +119,20 @@ html {
   }
 }
 
-/* ✅ Removed gradients, kept clean utility layer */
+/* ✅ Animation utilities */
 @layer utilities {
-  /* No extra utilities needed for now */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 /* ✅ Hero image styles (unchanged except for clarity) */
@@ -120,4 +148,14 @@ html {
 
 .hero-image.scrolled {
   transform: rotateX(0deg) scale(1) translateY(40px);
+}
+
+
+/* ✅ Gradient background for CTA section */
+.gradient {
+  background: linear-gradient(135deg, hsl(var(--primary)/0.1) 0%, hsl(var(--secondary)/0.1) 100%);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid hsl(var(--border));
 }

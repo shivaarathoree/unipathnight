@@ -18,6 +18,14 @@ export default async function CoverLetterPage() {
           </Button>
         </Link>
       </div>
+      
+      {/* Premium paragraph section with elegant typography and animation */}
+      <div className="mb-8 animate-fade-in-up">
+        <p className="text-xl text-gray-300 max-w-3xl leading-relaxed">
+          Stand out with personalized, professional cover letters crafted in seconds. 
+          
+        </p>
+      </div>
 
       <CoverLetterList coverLetters={coverLetters} />
     </div>

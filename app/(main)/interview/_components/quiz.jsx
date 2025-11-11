@@ -69,7 +69,14 @@ export default function Quiz() {
   const finishQuiz = async () => {
     const score = calculateScore();
     try {
-      await saveQuizResultFn(quizData, answers, score);
+      // Pass only serializable data to the Server Action
+      const serializableQuestions = quizData.map(q => ({
+        question: q.question,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation
+      }));
+      
+      await saveQuizResultFn(serializableQuestions, answers, score);
       toast.success("Quiz completed!");
     } catch (error) {
       toast.error(error.message || "Failed to save quiz results");

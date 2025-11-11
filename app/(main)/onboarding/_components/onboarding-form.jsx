@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -29,15 +29,21 @@ import {
 import useFetch from "@/hooks/use-fetch";
 import { onboardingSchema } from "@/app/lib/schema";
 import { updateUser } from "@/actions/user";
+import { useAuth } from "@/components/FirebaseProvider";
 
-const OnboardingForm = ({ industries }) => {
+const OnboardingForm = ({ industries, currentUser, isOnboarded }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isEditMode = searchParams.get("edit") === "true";
+  const { user } = useAuth();
+  
   const [selectedIndustry, setSelectedIndustry] = useState(null);
 
   const {
     loading: updateLoading,
     fn: updateUserFn,
     data: updateResult,
+    error: updateError,
   } = useFetch(updateUser);
 
   const {
@@ -46,32 +52,99 @@ const OnboardingForm = ({ industries }) => {
     formState: { errors },
     setValue,
     watch,
+    reset,
   } = useForm({
     resolver: zodResolver(onboardingSchema),
   });
 
+  // Prefill form if in edit mode and currentUser data is available
+  useEffect(() => {
+    if (isEditMode && currentUser) {
+      // Parse the industry to extract main industry and sub-industry
+      const industryParts = currentUser.industry?.split('-') || [];
+      const mainIndustry = industryParts[0];
+      const subIndustry = industryParts.slice(1).join('-').replace(/-/g, ' ');
+      
+      // Find the industry object
+      const industryObj = industries.find(ind => ind.id === mainIndustry);
+      
+      reset({
+        industry: mainIndustry,
+        subIndustry: subIndustry,
+        experience: currentUser.experience?.toString() || "",
+        skills: currentUser.skills?.join(", ") || "",
+        bio: currentUser.bio || "",
+      });
+      
+      setSelectedIndustry(industryObj || null);
+      if (industryObj) {
+        setValue("industry", mainIndustry);
+        setValue("subIndustry", subIndustry);
+      }
+    }
+  }, [isEditMode, currentUser, industries, reset, setValue]);
+
   const onSubmit = async (values) => {
     try {
+      if (!user?.uid) {
+        toast.error("Please sign in to update your profile");
+        return;
+      }
+
       const formattedIndustry = `${values.industry}-${values.subIndustry
         .toLowerCase()
         .replace(/ /g, "-")}`;
 
-      await updateUserFn({
+      const result = await updateUserFn(user.uid, {
         ...values,
         industry: formattedIndustry,
       });
+
+      // Handle success immediately after the update
+      if (result && (result.success || result.user)) {
+        if (isEditMode) {
+          toast.success("Profile updated successfully!");
+        } else {
+          toast.success("Profile completed successfully!");
+        }
+        router.push("/dashboard");
+        router.refresh();
+      }
     } catch (error) {
       console.error("Onboarding error:", error);
+      // Provide more specific error messages
+      if (error.message.includes("timed out")) {
+        toast.error("Profile update is taking longer than expected. Please try again.");
+      } else {
+        toast.error("Failed to update profile. Please try again.");
+      }
     }
   };
 
   useEffect(() => {
-    if (updateResult?.success && !updateLoading) {
-      toast.success("Profile completed successfully!");
-      router.push("/dashboard");
-      router.refresh();
+    if (updateResult && !updateLoading) {
+      // Check if we have a successful update
+      if (updateResult.success || updateResult.user) {
+        if (isEditMode) {
+          toast.success("Profile updated successfully!");
+        } else {
+          toast.success("Profile completed successfully!");
+        }
+        router.push("/dashboard");
+        router.refresh();
+      }
     }
-  }, [updateResult, updateLoading]);
+    
+    // Handle errors
+    if (updateError) {
+      // Provide more specific error messages
+      if (updateError.message.includes("timed out")) {
+        toast.error("Profile update is taking longer than expected. Please try again.");
+      } else {
+        toast.error("Failed to update profile. Please try again.");
+      }
+    }
+  }, [updateResult, updateLoading, updateError, isEditMode]);
 
   const watchIndustry = watch("industry");
 
@@ -80,11 +153,12 @@ const OnboardingForm = ({ industries }) => {
       <Card className="w-full max-w-lg mt-10 mx-2">
         <CardHeader>
           <CardTitle className="gradient-title text-4xl">
-            Complete Your Profile
+            {isEditMode ? "Update Your Profile" : "Complete Your Profile"}
           </CardTitle>
           <CardDescription>
-            Select your industry to get personalized career insights and
-            recommendations.
+            {isEditMode 
+              ? "Update your profile information to get personalized career insights and recommendations."
+              : "Select your industry to get personalized career insights and recommendations."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -99,6 +173,7 @@ const OnboardingForm = ({ industries }) => {
                   );
                   setValue("subIndustry", "");
                 }}
+                value={watchIndustry}
               >
                 <SelectTrigger id="industry">
                   <SelectValue placeholder="Select an industry" />
@@ -198,10 +273,10 @@ const OnboardingForm = ({ industries }) => {
               {updateLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {isEditMode ? "Updating..." : "Saving..."}
                 </>
               ) : (
-                "Complete Profile"
+                isEditMode ? "Update Profile" : "Complete Profile"
               )}
             </Button>
           </form>

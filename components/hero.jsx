@@ -86,7 +86,7 @@ const HeroSection = () => {
               opacity: 0
             }}
           >
-"Transform your career aspirations into reality with personalized guidance, expert interview coaching, and cutting-edge AI tools. <br></br>Whether you're a first-year finding your path or a final-year facing uncertainty, we're here to turn confusion into clarity and potential into success."</p>        </div>
+"Transform your career aspirations into reality with personalized guidance, expert interview coaching, and cutting-edge AI tools. <br></br>Whether you're a first-year finding your path or a final-year facing uncertainty, we're here to turn confusion into clarity and potential into real progress."</p>        </div>
         <div 
           className="flex justify-center space-x-4"
           style={{
@@ -102,15 +102,6 @@ const HeroSection = () => {
         </div>
         
         <style jsx>{`
-          @font-face {
-            font-family: 'Coldiac';
-            src: url('/fonts/Coldiac.otf') format('opentype'),
-                 url('/fonts/Coldiac.ttf') format('truetype');
-            font-weight: 300;
-            font-style: normal;
-            font-display: swap;
-          }
-
           @keyframes slideDownRotate {
             from {
               opacity: 0;

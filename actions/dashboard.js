@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { requireUser } from "@/app/lib/firebase-auth";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -37,32 +37,75 @@ export const generateAIInsights = async (industry) => {
 };
 
 export async function getIndustryInsights() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  try {
+    const { uid } = await requireUser();
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-    include: {
-      industryInsight: true,
-    },
-  });
-
-  if (!user) throw new Error("User not found");
-
-  // If no insights exist, generate them
-  if (!user.industryInsight) {
-    const insights = await generateAIInsights(user.industry);
-
-    const industryInsight = await db.industryInsight.create({
-      data: {
-        industry: user.industry,
-        ...insights,
-        nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    const user = await db.user.findUnique({
+      where: { firebaseUid: uid },
+      include: {
+        industryInsight: true,
       },
     });
 
-    return industryInsight;
-  }
+    if (!user) throw new Error("User not found");
+    if (!user.industry) throw new Error("User industry not set. Please complete onboarding.");
 
-  return user.industryInsight;
+    // Check if insights exist for this industry
+    let industryInsight = await db.industryInsight.findUnique({
+      where: { industry: user.industry },
+    });
+
+    // Check if insights are empty or need regeneration
+    const isEmptyData = industryInsight && (
+      !industryInsight.salaryRanges || 
+      industryInsight.salaryRanges.length === 0 ||
+      !industryInsight.topSkills ||
+      industryInsight.topSkills.length === 0
+    );
+
+    // If no insights exist or data is empty, generate them
+    if (!industryInsight || isEmptyData) {
+      console.log(`${isEmptyData ? 'Regenerating' : 'Generating'} AI insights for industry: ${user.industry}`);
+      const insights = await generateAIInsights(user.industry);
+
+      if (industryInsight && isEmptyData) {
+        // Update existing empty record
+        industryInsight = await db.industryInsight.update({
+          where: { industry: user.industry },
+          data: {
+            ...insights,
+            lastUpdated: new Date(),
+            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          },
+        });
+      } else {
+        // Create new record
+        industryInsight = await db.industryInsight.create({
+          data: {
+            industry: user.industry,
+            ...insights,
+            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          },
+        });
+      }
+    }
+
+    // Serialize the data properly for client components
+    return {
+      id: industryInsight.id,
+      industry: industryInsight.industry,
+      salaryRanges: industryInsight.salaryRanges,
+      growthRate: industryInsight.growthRate,
+      demandLevel: industryInsight.demandLevel,
+      topSkills: industryInsight.topSkills,
+      marketOutlook: industryInsight.marketOutlook,
+      keyTrends: industryInsight.keyTrends,
+      recommendedSkills: industryInsight.recommendedSkills,
+      lastUpdated: industryInsight.lastUpdated.toISOString(),
+      nextUpdate: industryInsight.nextUpdate.toISOString(),
+    };
+  } catch (error) {
+    console.error("Error fetching industry insights:", error);
+    throw new Error(`Failed to fetch industry insights: ${error.message}`);
+  }
 }

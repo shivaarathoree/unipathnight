@@ -1,19 +1,16 @@
 import { redirect } from "next/navigation";
 import { industries } from "@/data/industries";
 import OnboardingForm from "./_components/onboarding-form";
-import { getUserOnboardingStatus } from "@/actions/user";
+import { getUserOnboardingStatus, getCurrentUser } from "@/actions/user";
 
 export default async function OnboardingPage() {
   // Check if user is already onboarded
   const { isOnboarded } = await getUserOnboardingStatus();
-
-  if (isOnboarded) {
-    redirect("/dashboard");
-  }
+  const currentUser = await getCurrentUser();
 
   return (
     <main>
-      <OnboardingForm industries={industries} />
+      <OnboardingForm industries={industries} currentUser={currentUser} isOnboarded={isOnboarded} />
     </main>
   );
 }

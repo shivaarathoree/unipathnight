@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -27,8 +27,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const DashboardView = ({ insights }) => {
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
+  
   // Transform salary data for the chart
   const salaryData = insights.salaryRanges.map((range) => ({
     name: range.role,
@@ -73,10 +78,27 @@ const DashboardView = ({ insights }) => {
     { addSuffix: true }
   );
 
+  const handleUpdateProfile = () => {
+    if (!isNavigating) {
+      setIsNavigating(true);
+      router.push("/onboarding?edit=true");
+      // Reset the navigation state after a short delay to prevent double clicks
+      setTimeout(() => setIsNavigating(false), 1000);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <Badge variant="outline">Last updated: {lastUpdatedDate}</Badge>
+        <Button 
+          onClick={handleUpdateProfile}
+          variant="outline"
+          disabled={isNavigating}
+          className="font-semibold px-6 py-2 rounded-lg border border-primary text-primary hover:bg-primary/10 transition-colors duration-300"
+        >
+          Update Profile
+        </Button>
       </div>
 
       {/* Market Overview Cards */}

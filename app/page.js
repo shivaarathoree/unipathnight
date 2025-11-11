@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -8,7 +10,7 @@ import {
   FileText,
   Mail,
   GraduationCap,
-  Mic,
+  MapPin,
   FileSearch,
   TrendingUp,
 } from "lucide-react";
@@ -24,6 +26,7 @@ import { features } from "@/data/features";
 import { testimonial } from "@/data/testimonial";
 import { faqs } from "@/data/faqs";
 import { howItWorks } from "@/data/howItWorks";
+import { motion } from "framer-motion";
 
 export default function LandingPage() {
   const growthTools = [
@@ -60,10 +63,12 @@ export default function LandingPage() {
     {
       title: "Discover Path",
       description: "Get personalized career roadmap and growth strategies",
-      icon: <Mic className="h-8 w-8 text-pink-500" />,
+      icon: <MapPin className="h-8 w-8 text-pink-500" />,
       link: "/career-roadmap",
     },
   ];
+
+
 
   return (
     <>
@@ -78,29 +83,51 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
         <div className="container mx-auto px-4 md:px-6">
-          <h2 style={{
-                         fontFamily: 'Sk-Modernist-Regular, sans-serif',
-                    }}
-           className="text-4xl tracking-tighter text-center mb-12" >
-            
-            Powerful Features for Your Career Growth
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto mb-16">
+            <h2 
+              style={{ fontFamily: 'Sk-Modernist-Regular, sans-serif' }}
+              className="text-4xl md:text-5xl tracking-tighter text-center mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
+            >
+             UNIHUB SMART FEATURES
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8 max-w-5xl mx-auto font-medium">
+              Unlock new possibilities in your career with AI tools built to guide and support your next step.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {features.map((feature, index) => (
-              <Card
+              <motion.div
                 key={index}
-                className="border-2 hover:border-primary transition-colors duration-300"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ 
+                  duration: 0.7, 
+                  delay: index * 0.1,
+                  ease: "easeOut"
+                }}
+                className="h-full"
               >
-                <CardContent className="pt-6 text-center flex flex-col items-center">
-                  <div className="flex flex-col items-center justify-center">
-                    {feature.icon}
-                    <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                <Link href="#growth-tools" className="block h-full">
+                  <Card className="border-0 bg-background/50 backdrop-blur-sm rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.08)] transition-all duration-500 group relative h-full hover:shadow-[0_0_35px_rgba(0,0,0,0.15)] hover:-translate-y-1">
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 z-[-1]"></div>
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-primary/5 group-hover:via-secondary/2 group-hover:to-primary/5 z-[-1] transition-all duration-700"></div>
+                    <CardContent className="pt-10 pb-10 px-6 text-center flex flex-col items-center relative">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="mb-6 p-5 bg-muted rounded-2xl transition-all duration-500">
+                          {React.cloneElement(feature.icon, {
+                            className: "w-14 h-14 text-primary"
+                          })}
+                        </div>
+                        <h3 className="text-xl font-bold mb-4">{feature.title}</h3>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -109,29 +136,35 @@ export default function LandingPage() {
       {/* Growth Tools Section */}
       <section id="growth-tools" className="w-full py-12 md:py-24 lg:py-32 bg-muted/50">
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-4">
+          <h2 className="text-4xl font-bold tracking-tight text-center mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             UNIPATH TOOLS
           </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Built to Elevate Your Path
+         
+          <p className="text-center text-lg mb-16 max-w-5xl mx-auto text-foreground/80 font-medium">
+            Powerful tools designed to guide your career journey with precision and personalized insights
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {growthTools.map((tool, index) => (
-              <Link key={index} href={tool.link} className="block">
-                <Card className="border-2 hover:border-primary transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
-                  <CardContent className="pt-6 text-center flex flex-col items-center">
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="mb-4 p-3 bg-muted rounded-full">
-                        {tool.icon}
+              <div
+                key={index}
+                className="h-full transition-all duration-500 hover:-translate-y-2"
+              >
+                <Link href={tool.link} className="block group h-full">
+                  <Card className="border-2 h-full bg-background/50 backdrop-blur-sm transition-all duration-500 hover:border-primary hover:shadow-xl hover:-translate-y-2 hover:shadow-primary/25 group-hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] rounded-xl overflow-hidden border-border/50">
+                    <CardContent className="pt-8 pb-8 text-center flex flex-col items-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="mb-6 p-4 bg-muted rounded-full transition-all duration-500 group-hover:bg-gradient-to-r from-primary/30 to-secondary/30 group-hover:shadow-[0_0_20px_rgba(0,0,0,0.15)]">
+                          {tool.icon}
+                        </div>
+                        <h3 className="text-xl font-bold mb-3">{tool.title}</h3>
+                        <p className="text-muted-foreground text-sm px-4 leading-relaxed">
+                          {tool.description}
+                        </p>
                       </div>
-                      <h3 className="text-xl font-bold mb-2">{tool.title}</h3>
-                      <p className="text-muted-foreground text-sm">
-                        {tool.description}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
             ))}
           </div>
         </div>
@@ -166,23 +199,39 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl font-bold mb-4">How It Works</h2>
-            <p className="text-muted-foreground">
-              Four simple steps to accelerate your career growth
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              A streamlined process designed to maximize your career potential with expert guidance at every step
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {howItWorks.map((item, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="flex flex-col items-center text-center space-y-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="h-full"
               >
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  {item.icon}
-                </div>
-                <h3 className="font-semibold text-xl">{item.title}</h3>
-                <p className="text-muted-foreground">{item.description}</p>
-              </div>
+                <Card className="border-0 bg-background/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.05)] hover:shadow-[0_0_20px_rgba(0,0,0,0.1)] transition-all duration-500 group relative">
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 z-[-1]"></div>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-primary/10 group-hover:via-secondary/5 group-hover:to-primary/5 z-[-1] transition-all duration-500"></div>
+                  <CardContent className="pt-8 pb-8 text-center flex flex-col items-center relative">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="mb-6 p-4 bg-muted rounded-full transition-all duration-500 group-hover:bg-gradient-to-r from-primary/20 to-secondary/20 group-hover:shadow-[0_0_20px_rgba(0,0,0,0.1)]">
+                        {React.cloneElement(item.icon, {
+                          className: "w-12 h-12 text-primary"
+                        })}
+                      </div>
+                      <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                      <p className="text-muted-foreground text-sm px-4 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>

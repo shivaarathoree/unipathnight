@@ -1,27 +1,52 @@
-import { BrainCircuit, Briefcase, LineChart, ScrollText } from "lucide-react";
+import { BrainCircuit, Briefcase, LineChart, ScrollText, Sparkles, Target, TrendingUp, Award } from "lucide-react";
 
 export const features = [
   {
-    icon: <BrainCircuit className="w-10 h-10 mb-4 text-primary" />,
-    title: "AI-Powered Career Guidance",
+    icon: <BrainCircuit />,
+    title: "AI-Powered Career Intelligence",
     description:
-      "Get personalized career advice and insights powered by advanced AI technology.",
+      "Your personal career hub where advanced algorithms analyze your profile to deliver continuous, personalized insights and strategic guidance tailored to your unique journey.",
   },
   {
-    icon: <Briefcase className="w-10 h-10 mb-4 text-primary" />,
-    title: "Interview Preparation",
+    icon: <Briefcase />,
+    title: "Smart Interview Preparation",
     description:
-      "Practice with role-specific questions and get instant feedback to improve your performance.",
+      "Practice with role-specific questions and receive instant AI feedback to refine your responses and boost confidence in real interviews.",
   },
   {
-    icon: <LineChart className="w-10 h-10 mb-4 text-primary" />,
-    title: "Industry Insights",
+    icon: <LineChart />,
+    title: "Real-Time Industry Analytics",
     description:
-      "Stay ahead with real-time industry trends, salary data, and market analysis.",
+      "Stay ahead with up-to-the-minute market trends, salary benchmarks, and growth projections to make informed career decisions.",
   },
   {
-    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
-    title: "Smart Resume Creation",
-    description: "Generate ATS-optimized resumes with AI assistance.",
+    icon: <ScrollText />,
+    title: "ATS-Optimized Resume Builder",
+    description:
+      "Create professional resumes that pass automated screening systems with AI-powered optimization and keyword enhancement.",
+  },
+  {
+    icon: <Target />,
+    title: "Precision Career Mapping",
+    description:
+      "Get a customized roadmap with milestone-based goals and actionable steps to achieve your dream career trajectory.",
+  },
+  {
+    icon: <TrendingUp />,
+    title: "Progress Analytics Dashboard",
+    description:
+      "Track your career development with detailed analytics and visual reports that show your improvements and highlight growth opportunities.",
+  },
+  {
+    icon: <Award />,
+    title: "Skill Gap Analysis",
+    description:
+      "Identify crucial skills for your target roles and receive personalized learning recommendations to bridge gaps.",
+  },
+  {
+    icon: <Sparkles />,
+    title: "AI-Powered Cover Letter Generator",
+    description:
+      "Generate compelling, personalized cover letters that resonate with hiring managers and align with job requirements.",
   },
 ];
