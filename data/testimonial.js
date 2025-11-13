@@ -26,7 +26,7 @@ export const testimonial = [
   quote:
     "Unipath taught me that impact begins the moment you decide to do.",
   author: "Parth Pandey",
-  image: "/imgparth.jpg",
+  image: "/Screenshot_2025-11-13-19-00-30-34_1c337646f29875672b5a61192b9010f9.jpg",
   role: "IT Student",
   company: "RGIPT",
   instagram: "",
