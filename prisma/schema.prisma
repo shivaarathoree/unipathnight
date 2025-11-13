@@ -8,31 +8,31 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(uuid())
-  firebaseUid     String    @unique
-  email           String    @unique
-  name            String?
-  imageUrl        String?
-  industry        String?
-  bio             String?
-  experience      Int?
-  skills          String[]
-  
-  coverLetterUsageCount Int      @default(0)
+  id          String   @id @default(uuid())
+  firebaseUid String   @unique
+  email       String   @unique
+  name        String?
+  imageUrl    String?
+  industry    String?
+  bio         String?
+  experience  Int?
+  skills      String[]
+
+  coverLetterUsageCount Int       @default(0)
   coverLetterLastReset  DateTime?
-  resumeAIUsageCount    Int      @default(0)
+  resumeAIUsageCount    Int       @default(0)
   resumeAILastReset     DateTime?
-  
-  phone                 String?
-  rollNumber            String?
-  branch                String?
-  department            String?
-  departmentEmail       String?
-  github                String?
-  linkedin              String?
-  collegeName           String?
-  collegeLocation       String?
-  graduationYear        String?
+
+  phone                     String?
+  rollNumber                String?
+  branch                    String?
+  department                String?
+  departmentEmail           String?
+  github                    String?
+  linkedin                  String?
+  collegeName               String?
+  collegeLocation           String?
+  graduationYear            String?
   seniorSecondaryBoard      String?
   seniorSecondaryPercentage String?
   seniorSecondaryYear       String?
@@ -48,118 +48,108 @@ model User {
   experiences               Json?
   projects                  Json?
   responsibilities          Json?
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
 
-  industryInsight IndustryInsight? @relation(fields: [industry], references: [industry])
-  assessments     Assessment[]
-  resume          Resume?
-  coverLetter     CoverLetter[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  industryInsight   IndustryInsight?   @relation(fields: [industry], references: [industry])
+  assessments       Assessment[]
+  resume            Resume?
+  coverLetter       CoverLetter[]
+  interviewSessions InterviewSession[]
 }
 
 model Assessment {
-  id             String    @id @default(cuid())
+  id             String   @id @default(cuid())
   userId         String
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   score          Float
   questions      Json[]
   category       String
   improvementTip String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([userId])
 }
 
 model Resume {
-  id          String    @id @default(cuid())
-  userId      String    @unique
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content     String    @db.Text
-  atsScore    Float?
-  feedback    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String   @db.Text
+  atsScore  Float?
+  feedback  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CoverLetter {
-  id              String    @id @default(cuid())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content         String    @db.Text
-  jobDescription  String?   @db.Text
-  companyName     String
-  jobTitle        String
-  status          String    @default("draft")
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content        String   @db.Text
+  jobDescription String?  @db.Text
+  companyName    String
+  jobTitle       String
+  status         String   @default("draft")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([userId])
 }
 
 model IndustryInsight {
-  id                 String    @id @default(cuid())
-  industry           String    @unique
-  users              User[]
-  salaryRanges       Json[]
-  growthRate         Float
-  demandLevel        String
-  topSkills          String[]
-  marketOutlook      String
-  keyTrends          String[]
-  recommendedSkills  String[]
-  lastUpdated        DateTime  @default(now())
-  nextUpdate         DateTime
+  id                String   @id @default(cuid())
+  industry          String   @unique
+  users             User[]
+  salaryRanges      Json[]
+  growthRate        Float
+  demandLevel       String
+  topSkills         String[]
+  marketOutlook     String
+  keyTrends         String[]
+  recommendedSkills String[]
+  lastUpdated       DateTime @default(now())
+  nextUpdate        DateTime
 
   @@index([industry])
 }
 
 model Interview {
-  id          String   @id @default(cuid())
-  role        String
-  type        String
-  level       String
-  techstack   String[]
-  questions   String[]
-  userId      String
-  status      String   @default("pending")
-  coverImage  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  role       String
+  type       String
+  level      String
+  techstack  String[]
+  questions  String[]
+  userId     String
+  status     String   @default("pending")
+  coverImage String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  feedback    InterviewFeedback[]
+  feedback InterviewFeedback[]
 
   @@map("interviews")
 }
 
 model InterviewFeedback {
-  id                   String   @id @default(cuid())
-  interviewId          String
-  userId               String
-  totalScore           Int
-  categoryScores       Json
-  strengths            String[]
-  areasForImprovement  String[]
-  finalAssessment      String
-  responses            String[]
-  audioRecordings      String[]
-  createdAt            DateTime @default(now())
+  id                  String   @id @default(cuid())
+  interviewId         String
+  userId              String
+  totalScore          Int
+  categoryScores      Json
+  strengths           String[]
+  areasForImprovement String[]
+  finalAssessment     String
+  responses           String[]
+  audioRecordings     String[]
+  createdAt           DateTime @default(now())
 
-  interview   Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
 
   @@map("interview_feedback")
-}
-
-model MockInterviewUsage {
-  id        String   @id @default(cuid())
-  userId    String
-  date      String   // YYYY-MM-DD format
-  count     Int      @default(0)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, date])
-  @@map("mock_interview_usage")
 }
 
 model InterviewSession {
@@ -170,10 +160,10 @@ model InterviewSession {
   status    String   @default("in_progress") // in_progress, completed
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   answers InterviewAnswer[]
-  
+
   @@map("interview_sessions")
 }
 
@@ -186,8 +176,8 @@ model InterviewAnswer {
   feedback    String
   idealAnswer String
   createdAt   DateTime @default(now())
-  
+
   session InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+
   @@map("interview_answers")
 }
