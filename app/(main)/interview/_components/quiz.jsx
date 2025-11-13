@@ -26,12 +26,14 @@ export default function Quiz() {
     loading: generatingQuiz,
     fn: generateQuizFn,
     data: quizData,
+    error: quizError,
   } = useFetch(generateQuiz);
 
   const {
     loading: savingResult,
     fn: saveQuizResultFn,
     data: resultData,
+    error: saveError,
     setData: setResultData,
   } = useFetch(saveQuizResult);
 
@@ -40,6 +42,18 @@ export default function Quiz() {
       setAnswers(new Array(quizData.length).fill(null));
     }
   }, [quizData]);
+
+  useEffect(() => {
+    if (quizError) {
+      toast.error(`Failed to generate quiz: ${quizError.message || "Unknown error"}`);
+    }
+  }, [quizError]);
+
+  useEffect(() => {
+    if (saveError) {
+      toast.error(`Failed to save quiz result: ${saveError.message || "Unknown error"}`);
+    }
+  }, [saveError]);
 
   const handleAnswer = (answer) => {
     const newAnswers = [...answers];
@@ -76,10 +90,14 @@ export default function Quiz() {
         explanation: q.explanation
       }));
       
-      await saveQuizResultFn(serializableQuestions, answers, score);
+      // Ensure answers array is also serializable
+      const serializableAnswers = [...answers];
+      
+      await saveQuizResultFn(serializableQuestions, serializableAnswers, score);
       toast.success("Quiz completed!");
     } catch (error) {
-      toast.error(error.message || "Failed to save quiz results");
+      console.error("Error saving quiz result:", error);
+      toast.error(`Failed to save quiz result: ${error.message || "Unknown error"}`);
     }
   };
 
@@ -138,7 +156,7 @@ export default function Quiz() {
         <p className="text-lg font-medium">{question.question}</p>
         <RadioGroup
           onValueChange={handleAnswer}
-          value={answers[currentQuestion]}
+          value={answers[currentQuestion] || ""}
           className="space-y-2"
         >
           {question.options.map((option, index) => (

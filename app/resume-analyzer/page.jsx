@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/components/FirebaseProvider";
 
 import {
   Upload,
@@ -10,16 +11,103 @@ import {
   Download,
   Share2,
   Zap,
+  Info,
 } from "lucide-react";
 
 export default function ResumeAnalyzer() {
+  const { user } = useAuth();
   const [file, setFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dragActive, setDragActive] = useState(false);
   const [analysisData, setAnalysisData] = useState(null);
+  const [usageInfo, setUsageInfo] = useState(null);
+  const [error, setError] = useState(null);
   const reportRef = useRef(null);
+
+  // Get user ID for localStorage key
+  const getUsageKey = () => {
+    return user ? `resumeAnalyzerUsage_${user.uid}` : null;
+  };
+
+  // Initialize or reset usage info
+  const initializeUsageInfo = () => {
+    const usageKey = getUsageKey();
+    if (!usageKey) return null;
+
+    const now = new Date().toISOString();
+    const initialUsage = {
+      used: 0,
+      limit: 1,
+      remaining: 1,
+      hasReachedLimit: false,
+      lastReset: now,
+      nextReset: new Date(new Date(now).getTime() + 24 * 60 * 60 * 1000).toISOString()
+    };
+
+    localStorage.setItem(usageKey, JSON.stringify(initialUsage));
+    return initialUsage;
+  };
+
+  // Check if 24 hours have passed since last reset
+  const checkIfResetNeeded = (usageData) => {
+    const now = new Date();
+    const lastReset = new Date(usageData.lastReset);
+    const hoursSinceReset = (now - lastReset) / (1000 * 60 * 60);
+    
+    return hoursSinceReset >= 24;
+  };
+
+  // Get current usage info from localStorage
+  const getCurrentUsageInfo = () => {
+    const usageKey = getUsageKey();
+    if (!usageKey) return null;
+
+    const storedUsage = localStorage.getItem(usageKey);
+    
+    if (!storedUsage) {
+      return initializeUsageInfo();
+    }
+
+    let usageData = JSON.parse(storedUsage);
+    
+    // Check if we need to reset
+    if (checkIfResetNeeded(usageData)) {
+      return initializeUsageInfo();
+    }
+
+    return usageData;
+  };
+
+  // Update usage info in localStorage
+  const updateUsageInfo = (increment = false) => {
+    const usageKey = getUsageKey();
+    if (!usageKey) return null;
+
+    let usageData = getCurrentUsageInfo();
+    if (!usageData) {
+      usageData = initializeUsageInfo();
+    }
+
+    if (increment) {
+      usageData.used += 1;
+      usageData.remaining = Math.max(0, usageData.limit - usageData.used);
+      usageData.hasReachedLimit = usageData.used >= usageData.limit;
+    }
+
+    localStorage.setItem(usageKey, JSON.stringify(usageData));
+    setUsageInfo(usageData);
+    return usageData;
+  };
+
+  // Fetch usage info when component mounts or user changes
+  useEffect(() => {
+    if (user) {
+      const usageData = getCurrentUsageInfo();
+      setUsageInfo(usageData);
+    }
+  }, [user]);
 
   const handleDownloadPDF = async () => {
     if (!reportRef.current || !analysisData) return;
@@ -56,11 +144,20 @@ export default function ResumeAnalyzer() {
   };
 
   const handleFile = async (uploadedFile) => {
+    // Check usage limit first
+    if (usageInfo && usageInfo.hasReachedLimit) {
+      const nextReset = new Date(usageInfo.nextReset);
+      const hoursUntilReset = Math.ceil((nextReset - new Date()) / (1000 * 60 * 60));
+      setError(`You've reached your daily limit of 1 resume analysis. You can analyze another in ${hoursUntilReset} hours.`);
+      return;
+    }
+
     setFile(uploadedFile);
     setAnalyzing(true);
     setProgress(0);
     setAnalysisData(null); // Reset previous data
     setAnalyzed(false);
+    setError(null);
 
     let progressInterval = null;
 
@@ -99,6 +196,9 @@ export default function ResumeAnalyzer() {
       const resultData = data.result;
       console.log("✅ Analysis result:", resultData);
 
+      // Update usage info after successful analysis
+      updateUsageInfo(true); // increment = true
+
       setProgress(100);
       setAnalysisData(resultData); // ✅ FIXED: Store the data
       
@@ -113,7 +213,7 @@ export default function ResumeAnalyzer() {
       if (progressInterval) clearInterval(progressInterval);
       setAnalyzing(false);
       setAnalysisData(null);
-      alert(`Error: ${error.message}`);
+      setError(`Error: ${error.message}`);
       setFile(null);
     }
   };
@@ -194,6 +294,52 @@ export default function ResumeAnalyzer() {
             Get actionable insights to optimize your resume for applicant tracking systems and hiring managers in seconds.
           </p>
         </div>
+
+        {/* Usage Limit Display - Minimal Premium UI */}
+        {usageInfo && (
+          <div className="bg-gradient-to-r from-[#1a1a1a] to-[#0f0f0f] rounded-xl p-4 border border-[#00ff88]/30 mb-8 max-w-md mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#00ff88]" />
+                <span className="text-sm text-gray-400">Daily Limit</span>
+              </div>
+              <div className="text-right">
+                {usageInfo.hasReachedLimit ? (
+                  <div className="text-red-400 text-sm">
+                    Limit reached - Reset in {Math.ceil((new Date(usageInfo.nextReset) - new Date()) / (1000 * 60 * 60))}h
+                  </div>
+                ) : (
+                  <div className="text-[#00ff88] font-medium">
+                    {usageInfo.remaining} of {usageInfo.limit} remaining
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-1.5 mt-2">
+              <div 
+                className="bg-gradient-to-r from-[#00ff88] to-[#00cc66] h-1.5 rounded-full" 
+                style={{ width: `${(usageInfo.used / usageInfo.limit) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-4 mb-6 text-center">
+            <AlertCircle className="w-6 h-6 mx-auto mb-2 text-red-500" />
+            <p className="text-red-500">{error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                setFile(null);
+              }}
+              className="mt-3 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
 
         {/* Two-column layout for upload section */}
         {!file && !analyzing && !analyzed && (
@@ -418,6 +564,7 @@ export default function ResumeAnalyzer() {
                   setFile(null);
                   setAnalyzed(false);
                   setAnalysisData(null);
+                  setError(null);
                 }}
                 className="flex items-center space-x-2 px-8 py-4 bg-[#1a1a1a] text-white font-bold rounded-lg border border-[#2a2a2a] hover:border-[#00ff88] transition-all"
               >

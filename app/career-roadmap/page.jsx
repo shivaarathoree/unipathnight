@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, ArrowRight, CheckCircle, Loader2, 
   Target, GraduationCap, TrendingUp, Clock, 
   Briefcase, Globe, AlertCircle, Rocket,
-  Calendar, BookOpen, Code, Download, Share2
+  Calendar, BookOpen, Code, Download, Share2,
+  Info
 } from "lucide-react";
+import { useAuth } from "@/components/FirebaseProvider";
 
 const QUESTIONS = [
   {
@@ -111,11 +113,96 @@ const QUESTIONS = [
 ];
 
 export default function CareerRoadmapPage() {
+  const { user, loading } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [generating, setGenerating] = useState(false);
   const [roadmap, setRoadmap] = useState(null);
   const [error, setError] = useState(null);
+  const [usageInfo, setUsageInfo] = useState(null);
+
+  // Get user ID for localStorage key
+  const getUsageKey = () => {
+    return user ? `careerRoadmapUsage_${user.uid}` : null;
+  };
+
+  // Initialize or reset usage info
+  const initializeUsageInfo = () => {
+    const usageKey = getUsageKey();
+    if (!usageKey) return null;
+
+    const now = new Date().toISOString();
+    const initialUsage = {
+      used: 0,
+      limit: 3,
+      remaining: 3,
+      hasReachedLimit: false,
+      lastReset: now,
+      nextReset: new Date(new Date(now).getTime() + 24 * 60 * 60 * 1000).toISOString()
+    };
+
+    localStorage.setItem(usageKey, JSON.stringify(initialUsage));
+    return initialUsage;
+  };
+
+  // Check if 24 hours have passed since last reset
+  const checkIfResetNeeded = (usageData) => {
+    const now = new Date();
+    const lastReset = new Date(usageData.lastReset);
+    const hoursSinceReset = (now - lastReset) / (1000 * 60 * 60);
+    
+    return hoursSinceReset >= 24;
+  };
+
+  // Get current usage info from localStorage
+  const getCurrentUsageInfo = () => {
+    const usageKey = getUsageKey();
+    if (!usageKey) return null;
+
+    const storedUsage = localStorage.getItem(usageKey);
+    
+    if (!storedUsage) {
+      return initializeUsageInfo();
+    }
+
+    let usageData = JSON.parse(storedUsage);
+    
+    // Check if we need to reset
+    if (checkIfResetNeeded(usageData)) {
+      return initializeUsageInfo();
+    }
+
+    return usageData;
+  };
+
+  // Update usage info in localStorage
+  const updateUsageInfo = (increment = false) => {
+    const usageKey = getUsageKey();
+    if (!usageKey) return null;
+
+    let usageData = getCurrentUsageInfo();
+    if (!usageData) {
+      usageData = initializeUsageInfo();
+    }
+
+    if (increment) {
+      usageData.used += 1;
+      usageData.remaining = Math.max(0, usageData.limit - usageData.used);
+      usageData.hasReachedLimit = usageData.used >= usageData.limit;
+    }
+
+    localStorage.setItem(usageKey, JSON.stringify(usageData));
+    setUsageInfo(usageData);
+    return usageData;
+  };
+
+  // Fetch usage info when component mounts or user changes
+  useEffect(() => {
+    if (user) {
+      const usageData = getCurrentUsageInfo();
+      setUsageInfo(usageData);
+    }
+  }, [user]);
 
   const handleAnswer = async (answer) => {
     const question = QUESTIONS[currentQuestion];
@@ -142,14 +229,29 @@ export default function CareerRoadmapPage() {
     setError(null);
 
     try {
+      // Check usage limit first
+      if (usageInfo && usageInfo.hasReachedLimit) {
+        const nextReset = new Date(usageInfo.nextReset);
+        const hoursUntilReset = Math.ceil((nextReset - new Date()) / (1000 * 60 * 60));
+        throw new Error(`You've reached your daily limit of 3 career roadmap generations. You can generate more in ${hoursUntilReset} hours.`);
+      }
+
       console.log("📤 Sending answers:", finalAnswers);
+
+      // Check if user is authenticated
+      if (!user) {
+        throw new Error("You must be logged in to generate a career roadmap");
+      }
 
       const response = await fetch("/api/career-roadmap", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(finalAnswers),
+        body: JSON.stringify({
+          ...finalAnswers,
+          firebaseUid: user.uid // Include the Firebase UID in the request
+        }),
       });
 
       const data = await response.json();
@@ -158,6 +260,9 @@ export default function CareerRoadmapPage() {
       if (!response.ok || !data.success) {
         throw new Error(data.error || "Failed to generate roadmap");
       }
+
+      // Update usage info after successful generation
+      updateUsageInfo(true); // increment = true
 
       setRoadmap(data.roadmap);
       setCurrentQuestion(QUESTIONS.length);
@@ -224,13 +329,59 @@ export default function CareerRoadmapPage() {
           </p>
         </motion.div>
 
+        {/* Usage Limit Display - Enhanced UI */}
+        {usageInfo && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-[#1a1a1a] to-[#0f0f0f] rounded-2xl p-6 border border-[#FFD700]/30 mb-8 shadow-lg"
+          >
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-[#FFD700]/10 rounded-xl">
+                  <Info className="w-6 h-6 text-[#FFD700]" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Daily Usage Limit</h3>
+                  <p className="text-gray-400">
+                    {usageInfo.used} of {usageInfo.limit} roadmaps generated
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                {usageInfo.hasReachedLimit ? (
+                  <div className="text-center">
+                    <p className="text-red-400 font-bold text-lg">Limit Reached</p>
+                    <p className="text-gray-400 text-sm">
+                      Resets in {Math.ceil((new Date(usageInfo.nextReset) - new Date()) / (1000 * 60 * 60))} hours
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-[#FFD700] font-bold text-lg">{usageInfo.remaining} Remaining</p>
+                    <p className="text-gray-400 text-sm">Today</p>
+                  </div>
+                )}
+                
+                <div className="w-24 bg-gray-700 rounded-full h-2.5">
+                  <div 
+                    className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD700] h-2.5 rounded-full" 
+                    style={{ width: `${(usageInfo.used / usageInfo.limit) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden mb-4">
           <motion.div
             className="h-full bg-gradient-to-r from-[#FF6B6B] to-[#FFE5E5]"
             initial={{ width: 0 }}
             animate={{ width: `${progressPercentage}%` }}
             transition={{ duration: 0.5 }}
-            style={{ boxShadow: "0 0 20pxrgb(254, 50, 50)" }}
+            style={{ boxShadow: "0 0 20px rgba(254, 50, 50)" }}
           />
         </div>
         <p className="text-center text-gray-500 text-sm">
@@ -410,7 +561,7 @@ function RoadmapDisplay({ roadmap, answers }) {
                   {roadmap.interviewPrep.technicalTopics?.map((topic, i) => (
                     <li key={i} className="text-gray-300 flex items-start gap-2">
                       <CheckCircle className="w-5 h-5 text-[#FFD700] flex-shrink-0 mt-1" />
-                      {topic}
+                      {typeof topic === 'string' ? topic : topic.name ? `${topic.name} (${topic.type})` : JSON.stringify(topic)}
                     </li>
                   ))}
                 </ul>
@@ -419,7 +570,9 @@ function RoadmapDisplay({ roadmap, answers }) {
                 <h3 className="text-xl font-bold text-[#FFD700] mb-4">Common Questions</h3>
                 <ul className="space-y-2">
                   {roadmap.interviewPrep.commonQuestions?.map((q, i) => (
-                    <li key={i} className="text-gray-300 text-sm">{q}</li>
+                    <li key={i} className="text-gray-300 text-sm">
+                      {typeof q === 'string' ? q : q.name ? `${q.name} (${q.type})` : JSON.stringify(q)}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -427,7 +580,9 @@ function RoadmapDisplay({ roadmap, answers }) {
                 <h3 className="text-xl font-bold text-[#FFD700] mb-4">Practice Resources</h3>
                 <ul className="space-y-2">
                   {roadmap.interviewPrep.practiceResources?.map((r, i) => (
-                    <li key={i} className="text-gray-300">{r}</li>
+                    <li key={i} className="text-gray-300">
+                      {typeof r === 'string' ? r : r.name ? `${r.name} (${r.type})` : JSON.stringify(r)}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -544,7 +699,7 @@ function MonthCard({ month }) {
             {month.skills?.map((skill, i) => (
               <li key={i} className="text-gray-300 flex items-start gap-2">
                 <CheckCircle className="w-5 h-5 text-[#FFD700] flex-shrink-0 mt-1" />
-                {skill}
+                {typeof skill === 'string' ? skill : skill.name ? `${skill.name} (${skill.type})` : JSON.stringify(skill)}
               </li>
             ))}
           </ul>
@@ -558,8 +713,14 @@ function MonthCard({ month }) {
           <ul className="space-y-2">
             {month.learningResources?.map((resource, i) => (
               <li key={i} className="text-gray-300">
-                <span className="font-semibold">{resource.name}</span>
-                <span className="text-gray-500 text-sm"> ({resource.type})</span>
+                {typeof resource === 'string' ? resource : resource.name ? (
+                  <>
+                    <span className="font-semibold">{resource.name}</span>
+                    <span className="text-gray-500 text-sm"> ({resource.type})</span>
+                  </>
+                ) : (
+                  JSON.stringify(resource)
+                )}
               </li>
             ))}
           </ul>
@@ -567,23 +728,13 @@ function MonthCard({ month }) {
       </div>
 
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-[#FFD700] mb-4">📌 Projects</h3>
-        <ul className="space-y-2">
-          {month.projects?.map((project, i) => (
-            <li key={i} className="text-gray-300 flex items-start gap-2">
-              <Rocket className="w-5 h-5 text-[#FFD700] flex-shrink-0 mt-1" />
-              {project}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="mb-6">
         <h3 className="text-xl font-bold text-[#FFD700] mb-4">📅 Weekly Tasks</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {month.weeklyTasks?.map((task, i) => (
             <div key={i} className="p-3 bg-[#0A0A0A] rounded-lg border border-[#FFD700]/20">
-              <p className="text-gray-300 text-sm">{task}</p>
+              <p className="text-gray-300 text-sm">
+                {typeof task === 'string' ? task : task.name ? `${task.name} (${task.type})` : JSON.stringify(task)}
+              </p>
             </div>
           ))}
         </div>
@@ -595,7 +746,7 @@ function MonthCard({ month }) {
           {month.milestones?.map((milestone, i) => (
             <li key={i} className="text-gray-300 flex items-start gap-2">
               <Target className="w-5 h-5 text-[#FFD700] flex-shrink-0 mt-1" />
-              {milestone}
+              {typeof milestone === 'string' ? milestone : milestone.name ? `${milestone.name} (${milestone.type})` : JSON.stringify(milestone)}
             </li>
           ))}
         </ul>
@@ -615,7 +766,8 @@ function SectionCard({ title, icon: Icon, items, color }) {
         {items.map((item, i) => (
           <li key={i} className="text-gray-300 flex items-start gap-2">
             <CheckCircle className="w-5 h-5 flex-shrink-0 mt-1" style={{ color }} />
-            {item}
+            {/* Handle both string and object items */}
+            {typeof item === 'string' ? item : item.name ? `${item.name} (${item.type})` : JSON.stringify(item)}
           </li>
         ))}
       </ul>

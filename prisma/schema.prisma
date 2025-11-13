@@ -150,3 +150,44 @@ model InterviewFeedback {
 
   @@map("interview_feedback")
 }
+
+model MockInterviewUsage {
+  id        String   @id @default(cuid())
+  userId    String
+  date      String   // YYYY-MM-DD format
+  count     Int      @default(0)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, date])
+  @@map("mock_interview_usage")
+}
+
+model InterviewSession {
+  id        String   @id @default(cuid())
+  userId    String
+  domain    String
+  questions Json
+  status    String   @default("in_progress") // in_progress, completed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers InterviewAnswer[]
+  
+  @@map("interview_sessions")
+}
+
+model InterviewAnswer {
+  id          String   @id @default(cuid())
+  sessionId   String
+  question    String
+  userAnswer  String
+  score       Int
+  feedback    String
+  idealAnswer String
+  createdAt   DateTime @default(now())
+  
+  session InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@map("interview_answers")
+}

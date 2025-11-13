@@ -26,7 +26,7 @@ export default function PerformanceChart({ assessments }) {
     if (assessments) {
       const formattedData = assessments.map((assessment) => ({
         date: format(new Date(assessment.createdAt), "MMM dd"),
-        score: assessment.quizScore,
+        score: assessment.score || 0,
       }));
       setChartData(formattedData);
     }

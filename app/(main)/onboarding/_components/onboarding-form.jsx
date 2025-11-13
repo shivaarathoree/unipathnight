@@ -101,7 +101,8 @@ const OnboardingForm = ({ industries, currentUser, isOnboarded }) => {
       });
 
       // Handle success immediately after the update
-      if (result && (result.success || result.user)) {
+      // The result is the user object, not an object with success property
+      if (result && result.id) {
         if (isEditMode) {
           toast.success("Profile updated successfully!");
         } else {
@@ -124,7 +125,8 @@ const OnboardingForm = ({ industries, currentUser, isOnboarded }) => {
   useEffect(() => {
     if (updateResult && !updateLoading) {
       // Check if we have a successful update
-      if (updateResult.success || updateResult.user) {
+      // The updateResult is the user object, not an object with success property
+      if (updateResult.id) {
         if (isEditMode) {
           toast.success("Profile updated successfully!");
         } else {
@@ -144,7 +146,7 @@ const OnboardingForm = ({ industries, currentUser, isOnboarded }) => {
         toast.error("Failed to update profile. Please try again.");
       }
     }
-  }, [updateResult, updateLoading, updateError, isEditMode]);
+  }, [updateResult, updateLoading, updateError, isEditMode, router]);
 
   const watchIndustry = watch("industry");
 

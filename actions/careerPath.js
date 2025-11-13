@@ -5,7 +5,7 @@ import { db } from "@/lib/prisma";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Rate limiting function for career roadmap generation
+// Rate limiting function for career roadmap generation (localStorage-based)
 async function checkCareerRoadmapLimit(firebaseUid) {
   if (!firebaseUid) {
     return { 
@@ -17,86 +17,14 @@ async function checkCareerRoadmapLimit(firebaseUid) {
     };
   }
 
-  try {
-    const user = await db.user.findUnique({
-      where: { firebaseUid: firebaseUid },
-      select: {
-        careerRoadmapUsageCount: true,
-        careerRoadmapLastReset: true
-      }
-    });
-
-    if (!user) {
-      // Create new user with initial values
-      await db.user.upsert({
-        where: { firebaseUid: firebaseUid },
-        update: {},
-        create: {
-          firebaseUid: firebaseUid,
-          email: "temp@example.com",
-          careerRoadmapUsageCount: 0,
-          careerRoadmapLastReset: new Date()
-        }
-      });
-      
-      return {
-        remaining: 3,
-        used: 0,
-        nextReset: null,
-        hasReachedLimit: false,
-        limit: 3
-      };
-    }
-
-    const now = new Date();
-    let lastReset = user.careerRoadmapLastReset ? new Date(user.careerRoadmapLastReset) : new Date();
-    let used = user.careerRoadmapUsageCount || 0;
-
-    // Check if 24 hours have passed since last reset
-    const hoursSinceReset = (now - lastReset) / (1000 * 60 * 60);
-    
-    // Reset if 24 hours have passed or if never reset before
-    if (!user.careerRoadmapLastReset || hoursSinceReset >= 24) {
-      console.log("🔄 Resetting daily career roadmap limit for user:", firebaseUid);
-      
-      // Reset the counter
-      used = 0;
-      lastReset = now;
-      
-      // Update user with reset values
-      await db.user.update({
-        where: { firebaseUid: firebaseUid },
-        data: {
-          careerRoadmapUsageCount: 0,
-          careerRoadmapLastReset: now
-        }
-      });
-    }
-
-    const remaining = 3 - used;
-    const nextReset = new Date(lastReset.getTime() + 24 * 60 * 60 * 1000);
-    const hasReachedLimit = remaining <= 0;
-
-    console.log(`📊 User ${firebaseUid}: Career Roadmap Used ${used}/3, Remaining: ${remaining}, HasReachedLimit: ${hasReachedLimit}`);
-
-    return {
-      remaining,
-      used,
-      nextReset: hasReachedLimit ? nextReset : null,
-      hasReachedLimit,
-      limit: 3
-    };
-  } catch (error) {
-    console.error("❌ Error checking career roadmap limit:", error);
-    // In case of error, allow the user to proceed
-    return { 
-      remaining: 3, 
-      used: 0, 
-      nextReset: null, 
-      hasReachedLimit: false,
-      limit: 3 
-    };
-  }
+  // This function now returns default values since we're using localStorage
+  return {
+    remaining: 3,
+    used: 0,
+    nextReset: null,
+    hasReachedLimit: false,
+    limit: 3
+  };
 }
 
 // Groq fallback function for career roadmap
@@ -158,104 +86,15 @@ async function generateCareerRoadmapWithGroq(prompt) {
 
 // AI generation with fallback for career roadmap
 async function generateRoadmapWithAI(prompt) {
-  // Try Gemini first
+  // Use Groq only as requested
   try {
-    console.log("🔄 Trying Gemini for career roadmap...");
-    
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error("Gemini API key not configured");
-    }
-
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.5,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 8192,
-        responseMimeType: "application/json",
-      }
-    });
-
-    console.log("📤 Sending request to Gemini...");
-    const result = await model.generateContent(prompt);
-    const response = result.response.text();
-    
-    console.log("📥 Received response from Gemini");
-    console.log("📝 Response length:", response.length);
-
-    // Parse JSON (with responseMimeType, it should be clean JSON)
-    let roadmap;
-    try {
-      roadmap = JSON.parse(response);
-      console.log("✅ Successfully parsed roadmap on first try");
-    } catch (firstError) {
-      console.log("⚠️ First parse failed, trying cleanup...");
-      
-      // Fallback: Clean the response
-      let cleanedResponse = response
-        .replace(/```json\s*/g, "")
-        .replace(/```\s*/g, "")
-        .replace(/^[^{]*/, "")
-        .replace(/[^}]*$/, "")
-        .replace(/,(\s*[}\]])/g, '$1')
-        .replace(/\n/g, ' ')
-        .replace(/\r/g, '')
-        .replace(/\t/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
-      
-      if (!jsonMatch) {
-        throw new Error("No valid JSON found in Gemini response");
-      }
-
-      try {
-        roadmap = JSON.parse(jsonMatch[0]);
-        console.log("✅ Successfully parsed after cleanup");
-      } catch (secondError) {
-        console.error("❌ Parse failed:", secondError.message);
-        
-        // Last resort: aggressive fix
-        let fixedJson = jsonMatch[0]
-          .replace(/,(\s*[}\]])/g, '$1')
-          .replace(/([{,]\s*)(\w+):/g, '$1"$2":')
-          .replace(/:\s*'([^']*)'/g, ': "$1"')
-          .replace(/[\u0000-\u001F]+/g, '');
-        
-        try {
-          roadmap = JSON.parse(fixedJson);
-          console.log("✅ Parsed after aggressive fix");
-        } catch (finalError) {
-          console.error("❌ All parsing attempts failed");
-          throw new Error("Unable to parse AI response. Please try again.");
-        }
-      }
-    }
-
-    // Validate structure
-    if (!roadmap.monthlyPlan || !Array.isArray(roadmap.monthlyPlan) || roadmap.monthlyPlan.length !== 6) {
-      console.error("❌ Invalid roadmap structure from Gemini");
-      throw new Error("Generated roadmap has invalid structure");
-    }
-
-    console.log("✅ Roadmap validation passed");
-    return roadmap;
-
-  } catch (geminiError) {
-    console.error("❌ Gemini failed:", geminiError.message);
-    
-    // Try Groq as fallback
-    try {
-      console.log("🔄 Falling back to Groq for career roadmap...");
-      const result = await generateCareerRoadmapWithGroq(prompt);
-      console.log("✅ Success with Groq fallback");
-      return result;
-    } catch (groqError) {
-      console.error("❌ Groq fallback failed:", groqError.message);
-      throw new Error(`Both AI services failed: Gemini - ${geminiError.message}, Groq - ${groqError.message}`);
-    }
+    console.log("🔄 Using Groq for career roadmap...");
+    const result = await generateCareerRoadmapWithGroq(prompt);
+    console.log("✅ Success with Groq");
+    return result;
+  } catch (groqError) {
+    console.error("❌ Groq failed:", groqError.message);
+    throw new Error(`AI service failed: ${groqError.message}`);
   }
 }
 
@@ -268,21 +107,10 @@ export async function generateCareerRoadmap(answers, firebaseUid) {
       throw new Error("Authentication required to generate career roadmap");
     }
 
-    // Check rate limit first
-    const limits = await checkCareerRoadmapLimit(firebaseUid);
-    
-    console.log("📊 Career roadmap rate limit check:", limits);
+    // Note: Actual rate limiting is handled in the frontend with localStorage
+    // This function just generates the roadmap without checking limits
 
-    if (limits.hasReachedLimit) {
-      const nextResetTime = limits.nextReset ? new Date(limits.nextReset) : new Date(Date.now() + 24 * 60 * 60 * 1000);
-      const hoursUntilReset = Math.ceil((nextResetTime - new Date()) / (1000 * 60 * 60));
-      
-      throw new Error(
-        `You've reached your daily limit of 3 career roadmap generations. You can generate more in ${hoursUntilReset} hours.`
-      );
-    }
-
-    console.log(`✅ User has ${limits.remaining}/3 career roadmap generations remaining today`);
+    console.log("✅ User authenticated, proceeding with roadmap generation");
 
     // Get user context if available
     let userContext = "";
@@ -419,34 +247,21 @@ Make it specific to ${answers.careerField}. Use real resources like YouTube, Cou
 
     const roadmap = await generateRoadmapWithAI(prompt);
 
-    // Update usage count in database
-    try {
-      await db.user.update({
-        where: { firebaseUid: firebaseUid },
-        data: {
-          careerRoadmapUsageCount: {
-            increment: 1
-          }
-        }
-      });
-      console.log("✅ Career roadmap usage count updated for user:", firebaseUid);
-    } catch (dbError) {
-      console.error("❌ Failed to update usage count:", dbError.message);
-      // Continue even if usage count update fails
-    }
+    // Note: Usage count is tracked in localStorage on the frontend
+    // No database update needed here
 
     return {
       success: true,
       roadmap: roadmap,
       generatedAt: new Date().toISOString(),
-      remainingGenerations: limits.remaining - 1
+      remainingGenerations: 2
     };
 
   } catch (error) {
     console.error("❌ Error generating roadmap:", error.message);
     
-    // Re-throw rate limit errors
-    if (error.message.includes("daily limit") || error.message.includes("Authentication required")) {
+    // Re-throw authentication errors
+    if (error.message.includes("Authentication required")) {
       throw error;
     }
     

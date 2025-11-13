@@ -57,19 +57,6 @@ export async function POST(req) {
   } catch (err) {
     console.error("❌ Error in /api/career-roadmap:", err);
     
-    // Handle rate limit errors
-    if (err.message.includes('daily limit')) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: err.message,
-          remaining: 0,
-          limit: 3
-        },
-        { status: 429 }
-      );
-    }
-    
     // Handle authentication errors
     if (err.message.includes('Authentication required')) {
       return NextResponse.json(
@@ -92,6 +79,22 @@ export async function POST(req) {
 }
 
 export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const uid = searchParams.get('uid');
+
+  // If uid is provided, return default usage info
+  if (uid) {
+    return NextResponse.json({ 
+      usage: {
+        remaining: 3,
+        used: 0,
+        nextReset: null,
+        hasReachedLimit: false,
+        limit: 3
+      }
+    });
+  }
+
   return NextResponse.json({ 
     message: "Career Roadmap API is working! Use POST to generate a roadmap." 
   });

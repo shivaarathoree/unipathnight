@@ -7,9 +7,30 @@ import Link from "next/link";
 import { useAuth } from "./FirebaseProvider";
 import { signOut } from "firebase/auth";
 import { auth } from "@/config";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const { user } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    try {
+      await fetch("/api/session", { method: "DELETE" });
+      await signOut(auth);
+    } catch (e) {
+      console.error("Sign out error:", e);
+    }
+  };
+
+  const handleUpdateProfile = () => {
+    router.push("/onboarding?edit=true");
+  };
 
   return (
     <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/60">
@@ -63,17 +84,21 @@ export default function Header() {
           )}
 
           {user && (
-            <Button
-              variant="outline"
-              onClick={async () => {
-                try {
-                  await fetch("/api/session", { method: "DELETE" });
-                  await signOut(auth);
-                } catch (e) {}
-              }}
-            >
-              Sign Out
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="capitalize">
+                  {user.displayName || user.email || 'User'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleUpdateProfile}>
+                  Update Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </nav>

@@ -1,26 +1,37 @@
 export const testimonial = [
+  
   {
-    quote:
-      "Unipath helped me build real-world projects that made my resume stand out. I landed my first internship within a month!",
-    author: "SHIVA RATHORE",
-    image: "https://randomuser.me/api/portraits/women/65.jpg",
-    role: "Pre-Final-Year CS Student",
-    company: "RGIPT",
-  },
-  {
-    quote:
-      "The AI resume coach and mock interviews boosted my confidence. I cracked my placement at Google!",
-    author: "D TEJAS",
-    image: "https://randomuser.me/api/portraits/men/60.jpg",
-    role: "Computer Science Student",
-    company: "RGIPT",
-  },
-  {
-    quote:
-      "Unipath’s career roadmap gave me clarity about my goals. It feels like having a mentor who knows me personally.",
-    author: "PARTH PANDEY",
-    image: "https://randomuser.me/api/portraits/women/68.jpg",
-    role: "IT Student",
-    company: "RGIPT",
-  },
+  quote:
+    "Unipath isn’t just a project — a proof that small ideas can spark change.",
+  author: "D Tejas",
+  image: "/IMG_6634.JPG",
+  role: "Computer Science Student",
+  company: "RGIPT",
+  instagram: "",
+  linkedin: "",
+  email: "23cs3023@rgipt.ac.in"
+},
+{
+  quote:
+    "We built Unipath to guide others — but in the process, it shaped who We are.",
+  author: "Shiva Rathore",
+  image: "/IMG_20240528_085831_289.jpg",
+  role: "Pre-Final-Year CS Student",
+  company: "RGIPT",
+  instagram: "",
+  linkedin: "https://in.linkedin.com/in/shiva-rathore-2027cse",
+  email: "23cs3050@rgipt.ac.in"
+},
+{
+  quote:
+    "Unipath taught me that impact begins the moment you decide to do.",
+  author: "Parth Pandey",
+  image: "/imgparth.jpg",
+  role: "IT Student",
+  company: "RGIPT",
+  instagram: "",
+  linkedin: "https://www.linkedin.com/in/parth-pandey-309748290",
+  email: "23it3030@rgipt.ac.in"
+}
+,
 ];

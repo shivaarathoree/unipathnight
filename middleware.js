@@ -6,6 +6,8 @@ const protectedMatchers = [
   "/interview",
   "/ai-cover-letter",
   "/onboarding",
+  "/career-roadmap",
+  "/resume-analyzer",
 ];
 
 export function middleware(req) {

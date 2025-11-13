@@ -13,6 +13,8 @@ import {
   MapPin,
   FileSearch,
   TrendingUp,
+  Linkedin,
+  Instagram,
 } from "lucide-react";
 import HeroSection from "@/components/hero";
 import {
@@ -240,48 +242,72 @@ export default function LandingPage() {
       {/* ABOUT THE TEAM Section */}
       <section id="about-team" className="w-full py-12 md:py-24 bg-muted/50">
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            ABOUT THE TEAM
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl font-bold mb-4">ABOUT THE TEAM</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Meet the passionate individuals behind UNIPATH
+            </p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {testimonial.map((testimonial, index) => (
-              <Card key={index} className="bg-background">
-                <CardContent className="pt-6">
-                  <div className="flex flex-col space-y-4">
-                    <div className="flex items-center space-x-4 mb-4">
-                      <div className="relative h-12 w-12 flex-shrink-0">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="h-full"
+              >
+                <Card className="bg-background border-0 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.05)] hover:shadow-[0_0_20px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1">
+                  <CardContent className="pt-6 pb-6 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="rounded-full overflow-hidden border-2 border-primary/20 w-32 h-32 mx-auto mb-4">
                         <Image
-                          width={600}
-                          height={600}
                           src={testimonial.image}
                           alt={testimonial.author}
-                          className="rounded-full object-cover border-2 border-primary/20"
+                          width={128}
+                          height={128}
+                          className="w-full h-full object-cover"
                         />
                       </div>
-                      <div>
-                        <p className="font-semibold">{testimonial.author}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {testimonial.role}
-                        </p>
-                        <p className="text-sm text-primary">
-                          {testimonial.company}
-                        </p>
+                      
+                      <h3 className="font-bold mb-1 text-xl">{testimonial.author}</h3>
+                      <p className="font-semibold mb-3 text-primary">
+                        {testimonial.author === 'Shiva Rathore' ? 'FOUNDER & CEO' : testimonial.author === 'D Tejas' ? 'LEAD DEVELOPER' : 'MANAGER'}
+                      </p>
+                      
+                      <p className="text-muted-foreground text-sm mb-4 px-2">
+                        {testimonial.quote}
+                      </p>
+                      
+                      <div className="flex justify-center space-x-3">
+                        <Button variant="outline" size="icon" asChild className="rounded-full w-9 h-9">
+                          <a href={testimonial.linkedin || "#"} target="_blank" rel="noopener noreferrer">
+                            <Linkedin className="h-4 w-4" />
+                          </a>
+                        </Button>
+                        <Button variant="outline" size="icon" asChild className="rounded-full w-9 h-9">
+                          <a href={testimonial.instagram || "#"} target="_blank" rel="noopener noreferrer">
+                            <Instagram className="h-4 w-4" />
+                          </a>
+                        </Button>
+                        <Button variant="outline" size="icon" asChild className="rounded-full w-9 h-9">
+                          <a href={`mailto:${testimonial.email || "#"}`}>
+                            <Mail className="h-4 w-4" />
+                          </a>
+                        </Button>
                       </div>
                     </div>
-                    <blockquote>
-                      <p className="text-muted-foreground italic relative">
-                        <span className="text-3xl text-primary absolute -top-4 -left-2">
-                          &quot;
-                        </span>
-                        {testimonial.quote}
-                        <span className="text-3xl text-primary absolute -bottom-4">
-                          &quot;
-                        </span>
-                      </p>
-                    </blockquote>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
